@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infant Weight Percentile Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Infant Weight Percentile Calculator</h1>
+            <p>Calculate weight percentiles for infants 0-24 months based on WHO growth standards</p>
+        </header>
+
+        <div class="calculator-card">
+            <form id="percentile-form">
+                <div class="input-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" required>
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <!-- Age Input Options -->
+                <div class="input-method-selector">
+                    <label class="method-label">Choose age input method:</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="age-method" value="months" checked>
+                            <span>Enter age in months</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="age-method" value="dates">
+                            <span>Use birth date & measurement date</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Age in Months (Default) -->
+                <div class="input-group" id="age-months-group">
+                    <label for="age-months">Age (months):</label>
+                    <input type="number" id="age-months" min="0" max="24" step="0.1">
+                    <span class="input-help">0-24 months</span>
+                </div>
+
+                <!-- Date-based Age Input -->
+                <div class="input-group-dates" id="date-inputs-group" style="display: none;">
+                    <div class="input-group">
+                        <label for="birth-date">Date of Birth:</label>
+                        <input type="date" id="birth-date">
+                        <span class="input-help">Infant's birth date</span>
+                    </div>
+                    <div class="input-group">
+                        <label for="measurement-date">Measurement Date:</label>
+                        <input type="date" id="measurement-date">
+                        <span class="input-help">Date when weight was measured</span>
+                    </div>
+                </div>
+
+                <!-- Weight Input with Unit Selection -->
+                <div class="input-group">
+                    <label for="weight">Weight:</label>
+                    <div class="weight-input-container">
+                        <input type="number" id="weight" min="0.1" step="0.01" required>
+                        <select id="weight-unit" class="unit-selector">
+                            <option value="kg">kg</option>
+                            <option value="lb">lb</option>
+                        </select>
+                    </div>
+                    <span class="input-help">Enter weight (will be converted to kg for calculation)</span>
+                </div>
+
+                <button type="submit">Calculate Percentile</button>
+            </form>
+
+            <div id="result" class="result-section" style="display: none;">
+                <h3>Result</h3>
+                <div class="result-content">
+                    <div class="percentile-display">
+                        <span class="percentile-number" id="percentile-value">--</span>
+                        <span class="percentile-label">percentile</span>
+                    </div>
+                    <div class="result-details">
+                        <p id="result-interpretation"></p>
+                        <div class="percentile-ranges">
+                            <div class="range-item">
+                                <span class="range-label">Below 3rd percentile:</span>
+                                <span class="range-description">Underweight</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">3rd-97th percentile:</span>
+                                <span class="range-description">Normal weight</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">Above 97th percentile:</span>
+                                <span class="range-description">Overweight</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <p><strong>Disclaimer:</strong> This calculator is for educational purposes only. Always consult with a healthcare professional for medical advice and interpretation of growth measurements.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
