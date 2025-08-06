@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infant Weight Percentile Calculator</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Header styles */
+        header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Calculator card styles */
+        .calculator-card {
+            padding: 40px 30px;
+            background: white;
+        }
+
+        /* Form styles */
+        #percentile-form {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .input-help {
+            display: block;
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Button styles */
+        button[type="submit"] {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Result section styles */
+        .result-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid #e1e8ed;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .result-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Percentile display */
+        .percentile-display {
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .percentile-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .percentile-number.normal {
+            color: #28a745;
+        }
+
+        .percentile-number.low {
+            color: #dc3545;
+        }
+
+        .percentile-number.high {
+            color: #fd7e14;
+        }
+
+        .percentile-label {
+            font-size: 1.2rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* Result details */
+        .result-details {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        #result-interpretation {
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        /* Percentile ranges */
+        .percentile-ranges {
+            display: grid;
+            gap: 12px;
+        }
+
+        .range-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #e9ecef;
+        }
+
+        .range-item:nth-child(1) {
+            border-left-color: #dc3545;
+        }
+
+        .range-item:nth-child(2) {
+            border-left-color: #28a745;
+        }
+
+        .range-item:nth-child(3) {
+            border-left-color: #fd7e14;
+        }
+
+        .range-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .range-description {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px;
+            color: #856404;
+        }
+
+        .disclaimer p {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            header {
+                padding: 30px 20px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .calculator-card {
+                padding: 30px 20px;
+            }
+            
+            .disclaimer {
+                margin: 20px;
+                padding: 15px;
+            }
+            
+            .percentile-number {
+                font-size: 2.5rem;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Infant Weight Percentile Calculator</h1>
+            <p>Calculate weight percentiles for infants 0-24 months based on WHO growth standards</p>
+        </header>
+
+        <div class="calculator-card">
+            <form id="percentile-form">
+                <div class="input-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" required>
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="age-months">Age (months):</label>
+                    <input type="number" id="age-months" min="0" max="24" step="0.1" required>
+                    <span class="input-help">0-24 months</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" id="weight" min="1" max="20" step="0.01" required>
+                    <span class="input-help">Enter weight in kilograms</span>
+                </div>
+
+                <button type="submit">Calculate Percentile</button>
+            </form>
+
+            <div id="result" class="result-section" style="display: none;">
+                <h3>Result</h3>
+                <div class="result-content">
+                    <div class="percentile-display">
+                        <span class="percentile-number" id="percentile-value">--</span>
+                        <span class="percentile-label">percentile</span>
+                    </div>
+                    <div class="result-details">
+                        <p id="result-interpretation"></p>
+                        <div class="percentile-ranges">
+                            <div class="range-item">
+                                <span class="range-label">Below 3rd percentile:</span>
+                                <span class="range-description">Underweight</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">3rd-97th percentile:</span>
+                                <span class="range-description">Normal weight</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">Above 97th percentile:</span>
+                                <span class="range-description">Overweight</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <p><strong>Disclaimer:</strong> This calculator is for educational purposes only. Always consult with a healthcare professional for medical advice and interpretation of growth measurements.</p>
+        </div>
+    </div>
+
+    <script>
+        // WHO Weight-for-age percentile data (LMS method)
+        const WHO_WEIGHT_DATA = {
+            male: [
+                [0, 0.3487, 3.3464, 0.14602],
+                [1, 0.2297, 4.4709, 0.13395],
+                [2, 0.1970, 5.5675, 0.12385],
+                [3, 0.1738, 6.3762, 0.11727],
+                [4, 0.1553, 7.0023, 0.11316],
+                [5, 0.1395, 7.5105, 0.11080],
+                [6, 0.1257, 7.9340, 0.10958],
+                [7, 0.1134, 8.2970, 0.10902],
+                [8, 0.1021, 8.6151, 0.10882],
+                [9, 0.0917, 8.9014, 0.10881],
+                [10, 0.0820, 9.1649, 0.10891],
+                [11, 0.0730, 9.4122, 0.10906],
+                [12, 0.0644, 9.6479, 0.10925],
+                [15, 0.0424, 10.3002, 0.10986],
+                [18, 0.0204, 10.9302, 0.11063],
+                [21, -0.0021, 11.5490, 0.11154],
+                [24, -0.0251, 12.1515, 0.11260]
+            ],
+            female: [
+                [0, 0.3809, 3.2322, 0.14171],
+                [1, 0.1233, 4.1873, 0.13724],
+                [2, 0.0422, 5.1282, 0.13000],
+                [3, -0.0134, 5.8458, 0.12619],
+                [4, -0.0553, 6.4237, 0.12402],
+                [5, -0.0903, 6.8985, 0.12274],
+                [6, -0.1201, 7.2970, 0.12204],
+                [7, -0.1462, 7.6422, 0.12178],
+                [8, -0.1695, 7.9487, 0.12181],
+                [9, -0.1909, 8.2254, 0.12199],
+                [10, -0.2111, 8.4800, 0.12223],
+                [11, -0.2306, 8.7192, 0.12247],
+                [12, -0.2497, 8.9481, 0.12268],
+                [15, -0.3089, 9.6298, 0.12309],
+                [18, -0.3700, 10.2849, 0.12349],
+                [21, -0.4321, 10.9371, 0.12394],
+                [24, -0.4952, 11.5939, 0.12446]
+            ]
+        };
+
+        function interpolateLMS(age, gender) {
+            const data = WHO_WEIGHT_DATA[gender];
+            let lowerIndex = 0;
+            let upperIndex = data.length - 1;
+            
+            for (let i = 0; i < data.length - 1; i++) {
+                if (age >= data[i][0] && age <= data[i + 1][0]) {
+                    lowerIndex = i;
+                    upperIndex = i + 1;
+                    break;
+                }
+            }
+            
+            const lowerAge = data[lowerIndex][0];
+            const upperAge = data[upperIndex][0];
+            
+            if (lowerAge === upperAge) {
+                return {
+                    L: data[lowerIndex][1],
+                    M: data[lowerIndex][2],
+                    S: data[lowerIndex][3]
+                };
+            }
+            
+            const ratio = (age - lowerAge) / (upperAge - lowerAge);
+            
+            return {
+                L: data[lowerIndex][1] + ratio * (data[upperIndex][1] - data[lowerIndex][1]),
+                M: data[lowerIndex][2] + ratio * (data[upperIndex][2] - data[lowerIndex][2]),
+                S: data[lowerIndex][3] + ratio * (data[upperIndex][3] - data[lowerIndex][3])
+            };
+        }
+
+        function calculateZScore(weight, age, gender) {
+            const lms = interpolateLMS(age, gender);
+            const L = lms.L;
+            const M = lms.M;
+            const S = lms.S;
+            
+            if (L !== 0) {
+                return (Math.pow(weight / M, L) - 1) / (L * S);
+            } else {
+                return Math.log(weight / M) / S;
+            }
+        }
+
+        function zScoreToPercentile(z) {
+            const a1 = 0.254829592;
+            const a2 = -0.284496736;
+            const a3 = 1.421413741;
+            const a4 = -1.453152027;
+            const a5 = 1.061405429;
+            const p = 0.3275911;
+            
+            const sign = z < 0 ? -1 : 1;
+            z = Math.abs(z);
+            
+            const t = 1.0 / (1.0 + p * z);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+            
+            const percentile = 0.5 * (1.0 + sign * y) * 100;
+            return Math.round(percentile * 10) / 10;
+        }
+
+        function calculateWeightPercentile(weight, ageMonths, gender) {
+            if (ageMonths < 0 || ageMonths > 24) {
+                throw new Error('Age must be between 0 and 24 months');
+            }
+            
+            if (weight < 1 || weight > 20) {
+                throw new Error('Weight must be between 1 and 20 kg');
+            }
+            
+            const zScore = calculateZScore(weight, ageMonths, gender);
+            const percentile = zScoreToPercentile(zScore);
+            
+            return {
+                percentile: percentile,
+                zScore: zScore,
+                interpretation: getInterpretation(percentile)
+            };
+        }
+
+        function getInterpretation(percentile) {
+            if (percentile < 3) {
+                return 'Below normal range (underweight). Please consult with a healthcare provider.';
+            } else if (percentile >= 3 && percentile <= 97) {
+                return 'Within normal range for age and gender.';
+            } else {
+                return 'Above normal range (overweight). Please consult with a healthcare provider.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('percentile-form');
+            const resultSection = document.getElementById('result');
+            const percentileValue = document.getElementById('percentile-value');
+            const resultInterpretation = document.getElementById('result-interpretation');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const gender = document.getElementById('gender').value;
+                const ageMonths = parseFloat(document.getElementById('age-months').value);
+                const weight = parseFloat(document.getElementById('weight').value);
+                
+                try {
+                    const result = calculateWeightPercentile(weight, ageMonths, gender);
+                    
+                    percentileValue.textContent = result.percentile + 'th';
+                    resultInterpretation.textContent = result.interpretation;
+                    
+                    percentileValue.className = 'percentile-number';
+                    if (result.percentile < 3) {
+                        percentileValue.classList.add('low');
+                    } else if (result.percentile > 97) {
+                        percentileValue.classList.add('high');
+                    } else {
+                        percentileValue.classList.add('normal');
+                    }
+                    
+                    resultSection.style.display = 'block';
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
