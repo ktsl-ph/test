@@ -152,6 +152,35 @@ function getInterpretation(percentile) {
     }
 }
 
+// Helper function to convert pounds to kilograms
+function poundsToKg(pounds) {
+    return pounds * 0.453592;
+}
+
+// Helper function to calculate age in months from birth date and measurement date
+function calculateAgeInMonths(birthDate, measurementDate) {
+    const birth = new Date(birthDate);
+    const measurement = new Date(measurementDate);
+    
+    if (measurement < birth) {
+        throw new Error('Measurement date cannot be before birth date');
+    }
+    
+    // Calculate age in months with decimal precision
+    const ageInMs = measurement.getTime() - birth.getTime();
+    const ageInDays = ageInMs / (1000 * 60 * 60 * 24);
+    const ageInMonths = ageInDays / 30.44; // Average days per month
+    
+    return Math.round(ageInMonths * 10) / 10; // Round to 1 decimal place
+}
+
+// Helper function to set today's date as default for measurement date
+function setDefaultMeasurementDate() {
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    document.getElementById('measurement-date').value = formattedDate;
+}
+
 // DOM manipulation and event handling
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('percentile-form');
@@ -159,19 +188,88 @@ document.addEventListener('DOMContentLoaded', function() {
     const percentileValue = document.getElementById('percentile-value');
     const resultInterpretation = document.getElementById('result-interpretation');
     
+    // Initialize default measurement date
+    setDefaultMeasurementDate();
+    
+    // Handle age input method toggle
+    const ageMethodRadios = document.querySelectorAll('input[name="age-method"]');
+    const ageMonthsGroup = document.getElementById('age-months-group');
+    const dateInputsGroup = document.getElementById('date-inputs-group');
+    
+    ageMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'months') {
+                ageMonthsGroup.style.display = 'block';
+                dateInputsGroup.style.display = 'none';
+                // Make age-months required when selected
+                document.getElementById('age-months').required = true;
+                document.getElementById('birth-date').required = false;
+                document.getElementById('measurement-date').required = false;
+            } else {
+                ageMonthsGroup.style.display = 'none';
+                dateInputsGroup.style.display = 'block';
+                // Make date inputs required when selected
+                document.getElementById('age-months').required = false;
+                document.getElementById('birth-date').required = true;
+                document.getElementById('measurement-date').required = true;
+            }
+        });
+    });
+    
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const gender = document.getElementById('gender').value;
-        const ageMonths = parseFloat(document.getElementById('age-months').value);
-        const weight = parseFloat(document.getElementById('weight').value);
-        
         try {
+            const gender = document.getElementById('gender').value;
+            let ageMonths;
+            
+            // Determine which age input method is selected
+            const ageMethod = document.querySelector('input[name="age-method"]:checked').value;
+            
+            if (ageMethod === 'months') {
+                ageMonths = parseFloat(document.getElementById('age-months').value);
+                if (!ageMonths && ageMonths !== 0) {
+                    throw new Error('Please enter the age in months');
+                }
+            } else {
+                const birthDate = document.getElementById('birth-date').value;
+                const measurementDate = document.getElementById('measurement-date').value;
+                
+                if (!birthDate || !measurementDate) {
+                    throw new Error('Please enter both birth date and measurement date');
+                }
+                
+                ageMonths = calculateAgeInMonths(birthDate, measurementDate);
+            }
+            
+            // Get weight and convert if necessary
+            let weight = parseFloat(document.getElementById('weight').value);
+            const weightUnit = document.getElementById('weight-unit').value;
+            
+            if (!weight) {
+                throw new Error('Please enter the weight');
+            }
+            
+            // Convert to kg if weight is in pounds
+            if (weightUnit === 'lb') {
+                weight = poundsToKg(weight);
+            }
+            
+            if (!gender) {
+                throw new Error('Please select the gender');
+            }
+            
             const result = calculateWeightPercentile(weight, ageMonths, gender);
+            
+            // Display the calculated age if using date method
+            let ageDisplay = '';
+            if (ageMethod === 'dates') {
+                ageDisplay = ` (Age: ${ageMonths} months)`;
+            }
             
             // Display results
             percentileValue.textContent = result.percentile + 'th';
-            resultInterpretation.textContent = result.interpretation;
+            resultInterpretation.textContent = result.interpretation + ageDisplay;
             
             // Add color coding based on percentile
             percentileValue.className = 'percentile-number';
